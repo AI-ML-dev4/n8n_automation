@@ -20,14 +20,26 @@ import {
   ChevronRight,
   LayoutTemplate,
   Loader2,
+  FileText,
+  X,
 } from "lucide-react";
 import { extractVariableIndices } from "@/lib/whatsapp/template-validators";
 import { useTranslations } from "next-intl";
+import {
+  uploadAccountMedia,
+  deleteAccountMedia,
+  MEDIA_MAX_BYTES_BY_KIND,
+} from "@/lib/storage/upload-media";
 
 export interface TemplateSendValues {
   body: string[];
   headerText?: string;
-  buttonParams?: Record<number, string>;
+
+  headerMediaUrl?: string;
+  headerMediaFilename?: string;
+  headerMediaPath?: string;
+
+  buttonParams?: Record<number, string>
 }
 
 interface TemplatePickerProps {
@@ -86,6 +98,13 @@ export function TemplatePicker({
   const [selected, setSelected] = useState<MessageTemplate | null>(null);
   const [params, setParams] = useState<string[]>([]);
   const [headerText, setHeaderText] = useState<string>("");
+  const [headerMedia, setHeaderMedia] = useState<{
+    url: string;
+    path: string;
+    filename: string;
+  } | null>(null);
+
+  const [mediaUploading, setMediaUploading] = useState(false);
   const [buttonParams, setButtonParams] = useState<Record<number, string>>({});
 
   useEffect(() => {
@@ -146,10 +165,16 @@ export function TemplatePicker({
 
   function pickTemplate(template: MessageTemplate) {
     const slots = collectVariableSlots(template);
+    const hasMediaHeader =
+      template.header_type === "document" ||
+      template.header_type === "image" ||
+      template.header_type === "video";
+
     const noInputsNeeded =
       slots.bodyVars.length === 0 &&
       slots.headerVarCount === 0 &&
-      slots.urlButtonSlots.length === 0;
+      slots.urlButtonSlots.length === 0 &&
+      !hasMediaHeader;
     if (noInputsNeeded) {
       onSelect(template, { body: [] });
       handleOpenChange(false);
@@ -165,6 +190,11 @@ export function TemplatePicker({
     if (!selected) return;
     const values: TemplateSendValues = { body: params };
     if (headerText.trim()) values.headerText = headerText.trim();
+    if (headerMedia) {
+      values.headerMediaUrl = headerMedia.url;
+      values.headerMediaFilename = headerMedia.filename;
+      values.headerMediaPath = headerMedia.path;
+    }
     if (Object.keys(buttonParams).length > 0) {
       values.buttonParams = Object.fromEntries(
         Object.entries(buttonParams).map(([k, v]) => [Number(k), v.trim()]),
@@ -178,6 +208,8 @@ export function TemplatePicker({
     () => (selected ? collectVariableSlots(selected) : null),
     [selected],
   );
+  const requiresDocument = selected?.header_type === "document";
+
   const canConfirm =
     !!selected &&
     !!slots &&
@@ -185,7 +217,9 @@ export function TemplatePicker({
     (slots.headerVarCount === 0 || headerText.trim().length > 0) &&
     slots.urlButtonSlots.every(
       (s) => (buttonParams[s.index] ?? "").trim().length > 0,
-    );
+    ) &&
+    (!requiresDocument || !!headerMedia) &&
+    !mediaUploading;
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -261,6 +295,55 @@ export function TemplatePicker({
                 </p>
               )}
             </div>
+            {selected.header_type === "document" && (
+              <div className="space-y-2">
+                <Label className="text-xs text-popover-foreground">
+                  PDF Document
+                </Label>
+
+                <Input
+                  type="file"
+                  accept="application/pdf"
+                  disabled={mediaUploading}
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+
+                    if (file.size > MEDIA_MAX_BYTES_BY_KIND.document) {
+                      alert("PDF is too large.");
+                      e.target.value = "";
+                      return;
+                    }
+
+                    setMediaUploading(true);
+
+                    try {
+                      if (headerMedia?.path) {
+                        await deleteAccountMedia("chat-media", headerMedia.path);
+                      }
+
+                      const { publicUrl, path } =
+                        await uploadAccountMedia("chat-media", file);
+
+                      setHeaderMedia({
+                        url: publicUrl,
+                        path,
+                        filename: file.name,
+                      });
+                    } finally {
+                      setMediaUploading(false);
+                    }
+                  }}
+                />
+
+                {headerMedia && (
+                  <div className="flex items-center gap-2 text-sm">
+                    <FileText className="h-4 w-4" />
+                    <span>{headerMedia.filename}</span>
+                  </div>
+                )}
+              </div>
+            )}
             {slots && slots.headerVarCount > 0 && (
               <div className="space-y-1">
                 <Label className="text-xs text-popover-foreground">

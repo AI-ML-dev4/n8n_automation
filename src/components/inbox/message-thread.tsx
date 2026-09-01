@@ -570,7 +570,7 @@ export function MessageThread({
           onUpdateMessage(tempId, { status: "failed" });
           // The upload never reached the recipient — GC the orphaned
           // object rather than leaving it in the public bucket forever.
-          void deleteAccountMedia(CHAT_MEDIA_BUCKET, payload.path).catch(() => {});
+          void deleteAccountMedia(CHAT_MEDIA_BUCKET, payload.path).catch(() => { });
           return;
         }
 
@@ -580,7 +580,7 @@ export function MessageThread({
         const reason = err instanceof Error ? err.message : "network error";
         toast.error(`Failed to send: ${reason}`);
         onUpdateMessage(tempId, { status: "failed" });
-        void deleteAccountMedia(CHAT_MEDIA_BUCKET, payload.path).catch(() => {});
+        void deleteAccountMedia(CHAT_MEDIA_BUCKET, payload.path).catch(() => { });
       }
     },
     [conversation, onNewMessage, onUpdateMessage],
@@ -664,6 +664,9 @@ export function MessageThread({
       values: {
         body: string[];
         headerText?: string;
+        headerMediaUrl?: string;
+        headerMediaFilename?: string;
+        headerMediaPath?: string;
         buttonParams?: Record<number, string>;
       },
     ) => {
@@ -700,6 +703,11 @@ export function MessageThread({
             template_message_params: {
               body: values.body,
               headerText: values.headerText,
+
+              headerMediaUrl: values.headerMediaUrl,
+              headerMediaFilename: values.headerMediaFilename,
+              headerMediaPath: values.headerMediaPath,
+
               buttonParams: values.buttonParams,
             },
             template_params: values.body,
@@ -990,11 +998,11 @@ export function MessageThread({
           {/* Status dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger className={cn(
-                  "inline-flex items-center justify-center h-7 gap-1 px-2 text-xs rounded-md hover:bg-muted",
-                  currentStatus?.color ?? "text-muted-foreground"
-                )}>
-                {currentStatus ? t(`status${currentStatus.label}`) : t("status")}
-                <ChevronDown className="h-3 w-3" />
+              "inline-flex items-center justify-center h-7 gap-1 px-2 text-xs rounded-md hover:bg-muted",
+              currentStatus?.color ?? "text-muted-foreground"
+            )}>
+              {currentStatus ? t(`status${currentStatus.label}`) : t("status")}
+              <ChevronDown className="h-3 w-3" />
             </DropdownMenuTrigger>
             <DropdownMenuContent
               align="end"
@@ -1110,12 +1118,12 @@ export function MessageThread({
                       : null;
                     const reply = parent
                       ? {
-                          authorLabel:
-                            parent.sender_type === "agent" || parent.sender_type === "bot"
-                              ? t("me") 
-                              : contact?.name || contact?.phone || "Unknown",
-                          preview: buildReplyPreview(parent, tQuote),
-                        }
+                        authorLabel:
+                          parent.sender_type === "agent" || parent.sender_type === "bot"
+                            ? t("me")
+                            : contact?.name || contact?.phone || "Unknown",
+                        preview: buildReplyPreview(parent, tQuote),
+                      }
                       : null;
                     const msgReactions = reactionsByMessageId.get(msg.id);
                     // Toggle is computed at the call site — `msgReactions`
