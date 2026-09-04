@@ -155,6 +155,7 @@ export function TemplatePicker({
     setSelected(null);
     setParams([]);
     setHeaderText("");
+    setHeaderMedia(null);
     setButtonParams({});
   }
 
@@ -208,7 +209,10 @@ export function TemplatePicker({
     () => (selected ? collectVariableSlots(selected) : null),
     [selected],
   );
-  const requiresDocument = selected?.header_type === "document";
+  const requiresMediaHeader =
+    selected?.header_type === "document" ||
+    selected?.header_type === "image" ||
+    selected?.header_type === "video";
 
   const canConfirm =
     !!selected &&
@@ -218,7 +222,7 @@ export function TemplatePicker({
     slots.urlButtonSlots.every(
       (s) => (buttonParams[s.index] ?? "").trim().length > 0,
     ) &&
-    (!requiresDocument || !!headerMedia) &&
+    (!requiresMediaHeader || !!headerMedia) &&
     !mediaUploading;
 
   return (
@@ -295,55 +299,84 @@ export function TemplatePicker({
                 </p>
               )}
             </div>
-            {selected.header_type === "document" && (
-              <div className="space-y-2">
-                <Label className="text-xs text-popover-foreground">
-                  PDF Document
-                </Label>
+            {(
+              selected.header_type === "document" ||
+              selected.header_type === "image" ||
+              selected.header_type === "video"
+            ) && (
+                <div className="space-y-2">
+                  <Label className="text-xs text-popover-foreground">
+                    {selected.header_type === "document"
+                      ? "PDF Document"
+                      : selected.header_type === "video"
+                        ? "Video"
+                        : "Image"}
+                  </Label>
 
-                <Input
-                  type="file"
-                  accept="application/pdf"
-                  disabled={mediaUploading}
-                  onChange={async (e) => {
-                    const file = e.target.files?.[0];
-                    if (!file) return;
-
-                    if (file.size > MEDIA_MAX_BYTES_BY_KIND.document) {
-                      alert("PDF is too large.");
-                      e.target.value = "";
-                      return;
+                  <Input
+                    type="file"
+                    accept={
+                      selected.header_type === "document"
+                        ? "application/pdf"
+                        : selected.header_type === "video"
+                          ? "video/*"
+                          : "image/*"
                     }
+                    disabled={mediaUploading}
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
 
-                    setMediaUploading(true);
+                      const kind = selected.header_type as
+                        | "document"
+                        | "video"
+                        | "image";
 
-                    try {
-                      if (headerMedia?.path) {
-                        await deleteAccountMedia("chat-media", headerMedia.path);
+                      if (file.size > MEDIA_MAX_BYTES_BY_KIND[kind]) {
+                        alert(
+                          `${kind} is too large. Maximum size is ${MEDIA_MAX_BYTES_BY_KIND[kind] / 1024 / 1024
+                          } MB.`,
+                        );
+                        e.target.value = "";
+                        return;
                       }
 
-                      const { publicUrl, path } =
-                        await uploadAccountMedia("chat-media", file);
+                      setMediaUploading(true);
 
-                      setHeaderMedia({
-                        url: publicUrl,
-                        path,
-                        filename: file.name,
-                      });
-                    } finally {
-                      setMediaUploading(false);
-                    }
-                  }}
-                />
+                      try {
+                        if (headerMedia?.path) {
+                          await deleteAccountMedia(
+                            "chat-media",
+                            headerMedia.path,
+                          );
+                        }
 
-                {headerMedia && (
-                  <div className="flex items-center gap-2 text-sm">
-                    <FileText className="h-4 w-4" />
-                    <span>{headerMedia.filename}</span>
-                  </div>
-                )}
-              </div>
-            )}
+                        const { publicUrl, path } =
+                          await uploadAccountMedia(
+                            "chat-media",
+                            file,
+                          );
+
+                        setHeaderMedia({
+                          url: publicUrl,
+                          path,
+                          filename: file.name,
+                        });
+                      } finally {
+                        setMediaUploading(false);
+                      }
+                    }}
+                  />
+
+                  {headerMedia && (
+                    <div className="flex items-center gap-2 text-sm">
+                      <FileText className="h-4 w-4" />
+                      <span>{headerMedia.filename}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+
             {slots && slots.headerVarCount > 0 && (
               <div className="space-y-1">
                 <Label className="text-xs text-popover-foreground">
@@ -426,6 +459,6 @@ export function TemplatePicker({
           )}
         </DialogFooter>
       </DialogContent>
-    </Dialog>
+    </Dialog >
   );
 }
