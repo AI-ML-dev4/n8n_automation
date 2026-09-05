@@ -15,6 +15,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { MessageSquare, CheckCircle, UsersRound } from "lucide-react";
+import Image from "next/image"
 
 // `useSearchParams` opts the component out of static prerendering
 // unless wrapped in Suspense — same pattern as /login.
@@ -130,7 +131,7 @@ function SignupPageInner() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <Card className="w-full max-w-md border-border bg-card">
-        <CardHeader className="items-center text-center">
+        {/* <CardHeader className="items-center text-center">
           <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
             {inviteToken ? (
               <UsersRound className="h-6 w-6 text-primary" />
@@ -145,6 +146,28 @@ function SignupPageInner() {
             {inviteToken
               ? "Verify your email, then accept the invitation to join your team."
               : "Get started with CRM Template for WhatsApp"}
+          </CardDescription>
+        </CardHeader> */}
+        <CardHeader className="items-center text-center">
+          <div className="mb-2 flex h-16 w-40 items-center justify-center">
+            <Image
+              src="/sitelogo/logo.png"
+              alt="Jaipur Export Surplus"
+              width={180}
+              height={80}
+              className="h-16 w-auto object-contain"
+              priority
+            />
+          </div>
+
+          <CardTitle className="text-xl text-foreground">
+            {inviteToken ? "Create account & join" : "Create account"}
+          </CardTitle>
+
+          <CardDescription className="text-muted-foreground">
+            {inviteToken
+              ? "Verify your email, then accept the invitation to join your team."
+              : "Get started with Jaipur Export Surplus"}
           </CardDescription>
         </CardHeader>
         <CardContent>

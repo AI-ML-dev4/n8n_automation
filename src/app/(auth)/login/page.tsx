@@ -16,6 +16,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { MessageSquare, UsersRound } from "lucide-react";
+import Image from "next/image"
 
 // `useSearchParams` opts the component out of static prerendering
 // unless it sits under a Suspense boundary. We split the form into
@@ -77,7 +78,7 @@ function LoginPageInner() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <Card className="w-full max-w-md border-border bg-card">
-        <CardHeader className="items-center text-center">
+        {/* <CardHeader className="items-center text-center">
           <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
             {inviteToken ? (
               <UsersRound className="h-6 w-6 text-primary" />
@@ -93,7 +94,27 @@ function LoginPageInner() {
               ? t('descAccept')
               : t('descWelcome')}
           </CardDescription>
-        </CardHeader>
+        </CardHeader> */}
+        <CardHeader className="items-center text-center">
+  <div className="mb-2 flex h-16 w-40 items-center justify-center">
+    <Image
+      src="/sitelogo/logo.png"
+      alt="Jaipur Export Surplus"
+      width={160}
+      height={70}
+      className="h-16 w-auto object-contain"
+      priority
+    />
+  </div>
+
+  <CardTitle className="text-xl text-foreground">
+    {inviteToken ? t('titleAccept') : t('titleWelcome')}
+  </CardTitle>
+
+  <CardDescription className="text-muted-foreground">
+    {inviteToken ? t('descAccept') : t('descWelcome')}
+  </CardDescription>
+</CardHeader>
         <CardContent>
           <form onSubmit={handleLogin} className="flex flex-col gap-4">
             {error && (
