@@ -14,7 +14,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { MessageSquare, CheckCircle, ArrowLeft } from "lucide-react";
-import Image from "next/image"
+import Image from "next/image";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -42,6 +42,8 @@ export default function ForgotPasswordPage() {
     setLoading(false);
   };
 
+  const isFormValid = email.trim() !== "";
+
   if (success) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -55,8 +57,8 @@ export default function ForgotPasswordPage() {
             </CardTitle>
             <CardDescription className="text-muted-foreground">
               We&apos;ve sent a password reset link to{" "}
-              <span className="text-foreground">{email}</span>. Please check your
-              inbox.
+              <span className="text-foreground">{email}</span>. Please check
+              your inbox.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -77,18 +79,22 @@ export default function ForgotPasswordPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <Card className="w-full max-w-md border-border bg-card">
-        <CardHeader className="items-center text-center">
-          <div className="mb-2 flex h-12 w-12 items-center justify-center">
+        <CardHeader className="flex flex-col items-center text-center">
+          <div className="mb-4 flex w-full justify-center">
             <Image
-                 src="/sitelogo/logo.png"
-                 alt="Jaipur Export Surplus"
-                 width={160}
-                 height={70}
-                 className="h-16 w-auto object-contain"
-                 priority
-               />
+              src="/sitelogo/jes-bg.png"
+              alt="Jaipur Export Surplus"
+              width={160}
+              height={70}
+              className="h-16 w-auto object-contain"
+              priority
+            />
           </div>
-          <CardTitle className="text-xl text-foreground">Reset password</CardTitle>
+
+          <CardTitle className="text-xl text-foreground">
+            Reset password
+          </CardTitle>
+
           <CardDescription className="text-muted-foreground">
             Enter your email and we&apos;ll send you a reset link
           </CardDescription>
@@ -112,14 +118,14 @@ export default function ForgotPasswordPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="border-border bg-muted text-foreground placeholder:text-muted-foreground focus-visible:border-primary focus-visible:ring-primary/20"
+                className="border-border bg-muted text-foreground placeholder:text-muted-foreground focus-visible:border-[#D4AF37] focus-visible:ring-[#D4AF37]/30 focus-visible:ring-1"
               />
             </div>
 
             <Button
               type="submit"
-              disabled={loading}
-              className="mt-2 h-10 w-full bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+              disabled={loading || !isFormValid}
+              className="mt-2 h-10 w-full cursor-pointer bg-gradient-to-r from-[#C9A227] via-[#D4AF37] to-[#E6C55A] text-black transition-all duration-200 hover:brightness-95 focus-visible:ring-2 focus-visible:ring-[#D4AF37]/40 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:brightness-100"
             >
               {loading ? "Sending..." : "Send reset link"}
             </Button>

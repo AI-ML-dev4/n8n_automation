@@ -22,7 +22,7 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "jaipur export surplus",
+    default: "Jaipur Export Surplus",
     template: "%s",
   },
   description: "Self-hostable CRM template for WhatsApp.",
@@ -30,9 +30,11 @@ export const metadata: Metadata = {
     index: false,
     follow: false,
   },
-  // icons: {
-  //   icon: [{ url: "/icon" }],
-  // },
+  icons: {
+    icon: "/sitelogo/jes-bg.png",
+    shortcut: "/sitelogo/jes-bg.png",
+    apple: "/sitelogo/jes-bg.png",
+  },
   formatDetection: {
     email: false,
     address: false,

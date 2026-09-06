@@ -27,7 +27,7 @@ import {
   Zap,
 } from "lucide-react";
 import type { AccountRole } from "@/lib/auth/roles";
-import Image from "next/image"
+import Image from "next/image";
 
 // Per-role chip metadata used in the sidebar's account strip + the
 // Members tab roster. Keeping this near both consumers in a single
@@ -41,36 +41,28 @@ const ROLE_CHIP: Record<
     icon: Crown,
     labelKey: "roleOwner",
     // Amber: scarce, immutable, "the boss" — gets visual emphasis.
-    className:
-      "border-amber-500/40 bg-amber-500/10 text-amber-300",
+    className: "border-amber-500/40 bg-amber-500/10 text-amber-300",
   },
   admin: {
     icon: Shield,
     labelKey: "roleAdmin",
     // Primary-tinted: significant but not as scarce as owner.
-    className:
-      "border-primary/40 bg-primary/10 text-primary",
+    className: "border-primary/40 bg-primary/10 text-primary",
   },
   agent: {
     icon: UserCog,
     labelKey: "roleAgent",
     // Neutral slate: the operational default.
-    className:
-      "border-border bg-muted text-foreground",
+    className: "border-border bg-muted text-foreground",
   },
   viewer: {
     icon: User,
     labelKey: "roleViewer",
     // Muted slate: read-only role; visually quieter than agent.
-    className:
-      "border-border bg-card text-muted-foreground",
+    className: "border-border bg-card text-muted-foreground",
   },
 };
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -129,9 +121,7 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
   // we gate on. Wait for the profile fetch to settle first, otherwise
   // the strip flashes in once the row resolves (a layout jump).
   const showAccountStrip =
-    !profileLoading &&
-    !!account?.name &&
-    account.name !== profile?.full_name;
+    !profileLoading && !!account?.name && account.name !== profile?.full_name;
 
   // Close the drawer when route changes — users opened it to navigate,
   // so once they pick a destination the drawer should get out of the way.
@@ -205,27 +195,32 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
             <X className="h-5 w-5" />
           </button>
         </div> */}
-        <div className="flex h-14 shrink-0 items-center justify-between gap-2 border-b border-border px-4">
-          <Link href="/dashboard" className="flex items-center gap-2">
+        <div className="flex h-16 items-center justify-between border-b border-border bg-background px-5">
+          <Link href="/dashboard" className="flex items-center gap-3 min-w-0">
             <Image
-              src="/sitelogo/logo.png"
+              src="/sitelogo/jes-bg.png"
               alt="Jaipur Export Surplus"
-              width={42}
-              height={42}
-              className="h-15 w-15 rounded-lg object-contain"
+              width={44}
+              height={44}
+              className="h-11 w-auto shrink-0 object-contain"
               priority
             />
 
-            <span className="text-sm font-semibold text-foreground">
-              {t("title")}
-            </span>
+            <div className="leading-tight">
+              <p className="font-['Cinzel'] text-sm font-semibold tracking-[0.15em] text-[#D4AF37] whitespace-nowrap">
+                JAIPUR EXPORT
+              </p>
+              <p className="text-center font-['Cinzel'] text-sm font-semibold tracking-[0.15em] text-[#D4AF37] whitespace-nowrap">
+                SURPLUS
+              </p>
+            </div>
           </Link>
 
           <button
             type="button"
             onClick={onClose}
             aria-label={t("closeMenu")}
-            className="flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground lg:hidden"
+            className="flex h-10 w-10 items-center justify-center rounded-lg text-muted-foreground transition-all duration-200 hover:bg-[#D4AF37]/10 hover:text-[#D4AF37] lg:hidden"
           >
             <X className="h-5 w-5" />
           </button>
@@ -257,7 +252,7 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
                       // Taller on mobile so fingers can hit the row reliably (≥44px).
                       "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors lg:py-2",
                       isActive
-                        ? "bg-primary/10 text-primary"
+                        ? "relative bg-[#F8E7A1] text-black after:absolute after:right-4 after:top-1/2 after:h-2.5 after:w-2.5 after:-translate-y-1/2 after:rounded-full after:bg-[#D4AF37] after:shadow-[0_0_8px_rgba(212,175,55,0.7)] after:content-['']"
                         : "text-muted-foreground hover:bg-muted hover:text-foreground",
                     )}
                   >
@@ -273,7 +268,9 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
                     )}
                     {showUnreadDot && (
                       <span
-                        aria-label={t("unreadConversations", { count: totalUnread })}
+                        aria-label={t("unreadConversations", {
+                          count: totalUnread,
+                        })}
                         className="relative flex h-2 w-2"
                       >
                         <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
@@ -282,7 +279,9 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
                     )}
                     {showNotificationBadge && (
                       <span
-                        aria-label={t("unreadNotifications", { count: unreadNotifications })}
+                        aria-label={t("unreadNotifications", {
+                          count: unreadNotifications,
+                        })}
                         className="flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground"
                       >
                         {unreadNotifications > 9 ? "9+" : unreadNotifications}
@@ -306,7 +305,7 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
                     className={cn(
                       "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors lg:py-2",
                       isActive
-                        ? "bg-primary/10 text-primary"
+                        ? "relative bg-[#F8E7A1] text-black after:absolute after:right-4 after:top-1/2 after:h-2.5 after:w-2.5 after:-translate-y-1/2 after:rounded-full after:bg-[#D4AF37] after:shadow-[0_0_8px_rgba(212,175,55,0.7)] after:content-['']"
                         : "text-muted-foreground hover:bg-muted hover:text-foreground",
                     )}
                   >
@@ -336,24 +335,24 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
               <span className="truncate" title={account.name}>
                 {account.name}
               </span>
-              {accountRole ? (
-                // Always render the chip — owners used to be
-                // invisible here, which made them indistinguishable
-                // from admins at a glance. Now everyone sees their
-                // role (with a colour cue) regardless of tier.
-                (() => {
-                  const meta = ROLE_CHIP[accountRole];
-                  const Icon = meta.icon;
-                  return (
-                    <span
-                      className={`ml-auto inline-flex shrink-0 items-center gap-1 rounded-full border px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider ${meta.className}`}
-                    >
-                      <Icon className="size-3" />
-                      {t(meta.labelKey as string)}
-                    </span>
-                  );
-                })()
-              ) : null}
+              {accountRole
+                ? // Always render the chip — owners used to be
+                  // invisible here, which made them indistinguishable
+                  // from admins at a glance. Now everyone sees their
+                  // role (with a colour cue) regardless of tier.
+                  (() => {
+                    const meta = ROLE_CHIP[accountRole];
+                    const Icon = meta.icon;
+                    return (
+                      <span
+                        className={`ml-auto inline-flex shrink-0 items-center gap-1 rounded-full border px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider ${meta.className}`}
+                      >
+                        <Icon className="size-3" />
+                        {t(meta.labelKey as string)}
+                      </span>
+                    );
+                  })()
+                : null}
             </div>
           ) : null}
           <DropdownMenu>

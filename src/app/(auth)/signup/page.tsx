@@ -15,7 +15,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { MessageSquare, CheckCircle, UsersRound } from "lucide-react";
-import Image from "next/image"
+import Image from "next/image";
 
 // `useSearchParams` opts the component out of static prerendering
 // unless wrapped in Suspense — same pattern as /login.
@@ -90,6 +90,14 @@ function SignupPageInner() {
     setLoading(false);
   };
 
+  const isFormValid =
+  fullName.trim() !== "" &&
+  email.trim() !== "" &&
+  password.trim() !== "" &&
+  confirmPassword.trim() !== "" &&
+  password === confirmPassword &&
+  password.length >= 6;
+
   if (success) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -103,8 +111,8 @@ function SignupPageInner() {
             </CardTitle>
             <CardDescription className="text-muted-foreground">
               We&apos;ve sent a confirmation link to{" "}
-              <span className="text-foreground">{email}</span>. Please check your
-              inbox and click the link to verify your account.
+              <span className="text-foreground">{email}</span>. Please check
+              your inbox and click the link to verify your account.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -148,10 +156,10 @@ function SignupPageInner() {
               : "Get started with CRM Template for WhatsApp"}
           </CardDescription>
         </CardHeader> */}
-        <CardHeader className="items-center text-center">
-          <div className="mb-2 flex h-16 w-40 items-center justify-center">
+        <CardHeader className="flex flex-col items-center text-center">
+          <div className="mb-2 flex w-full justify-center">
             <Image
-              src="/sitelogo/logo.png"
+              src="/sitelogo/jes-bg.png"
               alt="Jaipur Export Surplus"
               width={180}
               height={80}
@@ -189,7 +197,7 @@ function SignupPageInner() {
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 required
-                className="border-border bg-muted text-foreground placeholder:text-muted-foreground focus-visible:border-primary focus-visible:ring-primary/20"
+                className="border-border bg-muted text-foreground placeholder:text-muted-foreground focus-visible:border-[#D4AF37] focus-visible:ring-[#D4AF37]/30 focus-visible:ring-1"
               />
             </div>
 
@@ -204,7 +212,7 @@ function SignupPageInner() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="border-border bg-muted text-foreground placeholder:text-muted-foreground focus-visible:border-primary focus-visible:ring-primary/20"
+                className="border-border bg-muted text-foreground placeholder:text-muted-foreground focus-visible:border-[#D4AF37] focus-visible:ring-[#D4AF37]/30 focus-visible:ring-1"
               />
             </div>
 
@@ -219,12 +227,15 @@ function SignupPageInner() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="border-border bg-muted text-foreground placeholder:text-muted-foreground focus-visible:border-primary focus-visible:ring-primary/20"
+                className="border-border bg-muted text-foreground placeholder:text-muted-foreground focus-visible:border-[#D4AF37] focus-visible:ring-[#D4AF37]/30 focus-visible:ring-1"
               />
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label htmlFor="confirmPassword" className="text-muted-foreground">
+              <Label
+                htmlFor="confirmPassword"
+                className="text-muted-foreground"
+              >
                 Confirm password
               </Label>
               <Input
@@ -234,17 +245,17 @@ function SignupPageInner() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
-                className="border-border bg-muted text-foreground placeholder:text-muted-foreground focus-visible:border-primary focus-visible:ring-primary/20"
+                className="border-border bg-muted text-foreground placeholder:text-muted-foreground focus-visible:border-[#D4AF37] focus-visible:ring-[#D4AF37]/30 focus-visible:ring-1"
               />
             </div>
 
-            <Button
-              type="submit"
-              disabled={loading}
-              className="mt-2 h-10 w-full bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
-            >
-              {loading ? "Creating account..." : "Create account"}
-            </Button>
+           <Button
+  type="submit"
+  disabled={loading || !isFormValid}
+  className="mt-2 h-10 w-full cursor-pointer bg-gradient-to-r from-[#C9A227] via-[#D4AF37] to-[#E6C55A] text-black transition-all duration-200 hover:brightness-95 focus-visible:ring-2 focus-visible:ring-[#D4AF37]/40 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:brightness-100"
+>
+  {loading ? "Creating account..." : "Create account"}
+</Button>
           </form>
 
           <p className="mt-6 text-center text-sm text-muted-foreground">

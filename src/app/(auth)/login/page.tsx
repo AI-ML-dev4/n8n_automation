@@ -15,8 +15,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { MessageSquare, UsersRound } from "lucide-react";
-import Image from "next/image"
+import { MessageSquare, UsersRound, Eye, EyeOff } from "lucide-react";
+import Image from "next/image";
 
 // `useSearchParams` opts the component out of static prerendering
 // unless it sits under a Suspense boundary. We split the form into
@@ -32,6 +32,8 @@ export default function LoginPage() {
 }
 
 function LoginPageInner() {
+  const [showPassword, setShowPassword] = useState(false);
+
   const searchParams = useSearchParams();
   // Forwarded from `/join/<token>` when the visitor already has an
   // account. After a successful sign-in we send them to the join
@@ -75,6 +77,8 @@ function LoginPageInner() {
     window.location.href = destination;
   };
 
+  const isFormValid = email.trim() !== "" && password.trim() !== "";
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <Card className="w-full max-w-md border-border bg-card">
@@ -95,26 +99,26 @@ function LoginPageInner() {
               : t('descWelcome')}
           </CardDescription>
         </CardHeader> */}
-        <CardHeader className="items-center text-center">
-  <div className="mb-2 flex h-16 w-40 items-center justify-center">
-    <Image
-      src="/sitelogo/logo.png"
-      alt="Jaipur Export Surplus"
-      width={160}
-      height={70}
-      className="h-16 w-auto object-contain"
-      priority
-    />
-  </div>
+        <CardHeader className="text-center">
+          <div className="mb-2 flex w-full justify-center">
+            <Image
+              src="/sitelogo/jes-bg.png"
+              alt="Jaipur Export Surplus"
+              width={160}
+              height={70}
+              className="h-16 w-auto object-contain"
+              priority
+            />
+          </div>
 
-  <CardTitle className="text-xl text-foreground">
-    {inviteToken ? t('titleAccept') : t('titleWelcome')}
-  </CardTitle>
+          <CardTitle className="text-xl text-foreground">
+            {inviteToken ? t("titleAccept") : t("titleWelcome")}
+          </CardTitle>
 
-  <CardDescription className="text-muted-foreground">
-    {inviteToken ? t('descAccept') : t('descWelcome')}
-  </CardDescription>
-</CardHeader>
+          <CardDescription className="text-muted-foreground">
+            {inviteToken ? t("descAccept") : t("descWelcome")}
+          </CardDescription>
+        </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin} className="flex flex-col gap-4">
             {error && (
@@ -125,53 +129,65 @@ function LoginPageInner() {
 
             <div className="flex flex-col gap-2">
               <Label htmlFor="email" className="text-muted-foreground">
-                {t('emailLabel')}
+                {t("emailLabel")}
               </Label>
               <Input
                 id="email"
                 type="email"
-                placeholder={t('emailPlaceholder')}
+                placeholder={t("emailPlaceholder")}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="border-border bg-muted text-foreground placeholder:text-muted-foreground focus-visible:border-primary focus-visible:ring-primary/20"
+                className="border-border bg-muted text-foreground placeholder:text-muted-foreground focus-visible:border-[#D4AF37] focus-visible:ring-[#D4AF37]/30 focus-visible:ring-1"
               />
             </div>
 
             <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password" className="text-muted-foreground">
-                  {t('passwordLabel')}
+                  {t("passwordLabel")}
                 </Label>
+
                 <Link
                   href="/forgot-password"
                   className="text-sm text-primary hover:text-primary/80"
                 >
-                  {t('forgotPassword')}
+                  {t("forgotPassword")}
                 </Link>
               </div>
-              <Input
-                id="password"
-                type="password"
-                placeholder={t('passwordPlaceholder')}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="border-border bg-muted text-foreground placeholder:text-muted-foreground focus-visible:border-primary focus-visible:ring-primary/20"
-              />
+
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder={t("passwordPlaceholder")}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="border-border bg-muted pr-10 text-foreground placeholder:text-muted-foreground focus-visible:border-[#D4AF37] focus-visible:ring-[#D4AF37]/30 focus-visible:ring-1"
+                />
+
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-[#D4AF37]"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
             </div>
 
             <Button
               type="submit"
-              disabled={loading}
-              className="mt-2 h-10 w-full bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+              disabled={loading || !isFormValid}
+              className="mt-2 h-10 w-full cursor-pointer bg-gradient-to-r from-[#C9A227] via-[#D4AF37] to-[#E6C55A] text-black transition-all duration-200 hover:brightness-95 focus-visible:ring-2 focus-visible:ring-[#D4AF37]/40 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {loading ? t('signingIn') : t('signIn')}
+              {loading ? t("signingIn") : t("signIn")}
             </Button>
           </form>
 
           <p className="mt-6 text-center text-sm text-muted-foreground">
-            {t('noAccount')}{" "}
+            {t("noAccount")}{" "}
             <Link
               href={
                 inviteToken
@@ -180,7 +196,7 @@ function LoginPageInner() {
               }
               className="text-primary hover:text-primary/80"
             >
-              {t('createAccount')}
+              {t("createAccount")}
             </Link>
           </p>
         </CardContent>

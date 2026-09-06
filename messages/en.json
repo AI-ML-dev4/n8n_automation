@@ -3,7 +3,7 @@
     "titleAccept": "Sign in to accept",
     "titleWelcome": "Welcome back",
     "descAccept": "Sign in and we'll take you to the invitation.",
-    "descWelcome": "Sign in to your account",
+    "descWelcome": "Jaipur Export Surplus",
     "emailLabel": "Email",
     "emailPlaceholder": "you@example.com",
     "passwordLabel": "Password",
@@ -40,23 +40,48 @@
     "menuSettings": "Settings",
     "menuSignOut": "Sign out"
   },
-  "Header": {
-    "dashboard": "Dashboard",
-    "inbox": "Inbox",
-    "notifications": "Notifications",
-    "contacts": "Contacts",
-    "pipelines": "Pipelines",
-    "broadcasts": "Broadcasts",
-    "automations": "Automations",
-    "settings": "Settings",
-    "openMenu": "Open menu",
-    "openAccountMenu": "Open account menu",
-    "defaultUser": "User",
-    "defaultAvatar": "Avatar",
-    "menuProfile": "Profile",
-    "menuSettings": "Settings",
-    "menuSignOut": "Sign out"
+ "Header": {
+  "dashboard": {
+    "title": "Dashboard",
+    "description": "Live analytics across conversations, contacts, deals, broadcasts, and automations."
   },
+  "inbox": {
+    "title": "Inbox",
+    "description": "Manage customer conversations and messages."
+  },
+  "notifications": {
+    "title": "Notifications",
+    "description": "Conversations other teammates assign to you show up here."
+  },
+  "contacts": {
+    "title": "Contacts",
+    "description": "View and manage your customer contacts."
+  },
+  "pipelines": {
+    "title": "Pipelines",
+    "description": "Track deals and monitor sales progress."
+  },
+  "broadcasts": {
+    "title": "Broadcasts",
+    "description": "Send bulk messages to your contacts using approved templates."
+  },
+  "automations": {
+    "title": "Automations",
+    "description": "Automate workflows and customer engagement."
+  },
+  "settings": {
+    "title": "Settings",
+    "description": "Everything in one place — your account and your workspace. Pick a section to manage it."
+  },
+
+  "openMenu": "Open menu",
+  "openAccountMenu": "Open account menu",
+  "defaultUser": "User",
+  "defaultAvatar": "Avatar",
+  "menuProfile": "Profile",
+  "menuSettings": "Settings",
+  "menuSignOut": "Sign out"
+},
   "ModeToggle": {
     "switchMode": "Switch to {mode} mode"
   },

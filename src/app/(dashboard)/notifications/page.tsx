@@ -164,12 +164,12 @@ export default function NotificationsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div>
+        {/* <div>
           <h1 className="text-2xl font-bold text-foreground">Notifications</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Conversations other teammates assign to you show up here.
           </p>
-        </div>
+        </div> */}
         <Button
           variant="outline"
           size="sm"
