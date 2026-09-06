@@ -12,8 +12,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ArrowLeft, ArrowRight, Eye, ImageIcon, Loader2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Eye, ImageIcon, Loader2, FileText, Upload, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+
+import {
+  uploadAccountMedia,
+  deleteAccountMedia,
+  MEDIA_MAX_BYTES_BY_KIND,
+} from "@/lib/storage/upload-media";
 
 type VariableType = 'static' | 'field' | 'custom_field';
 
@@ -77,6 +83,15 @@ export function Step3Personalize({
   onBack,
 }: Step3Props) {
   const t = useTranslations('Broadcasts.wizard');
+  // Media upload state
+  const [mediaUploading, setMediaUploading] = useState(false);
+
+  const [uploadedMedia, setUploadedMedia] = useState<{
+    url: string;
+    path: string;
+    filename: string;
+  } | null>(null);
+
   const [customFields, setCustomFields] = useState<CustomField[]>([]);
   const [loadingFields, setLoadingFields] = useState(true);
   const [firstContact, setFirstContact] = useState<Contact | null>(null);
@@ -255,12 +270,73 @@ export function Step3Personalize({
             {t('personalize.imageUrl')}
           </label>
           <Input
-            type="url"
-            value={headerMediaUrl}
-            onChange={(e) => onHeaderMediaUrlChange(e.target.value)}
-            placeholder={t('personalize.imageUrlPlaceholder')}
-            className="border-border bg-muted text-foreground placeholder:text-muted-foreground"
+            type="file"
+            accept={
+              mediaHeaderType === "document"
+                ? "application/pdf"
+                : mediaHeaderType === "video"
+                  ? "video/*"
+                  : "image/*"
+            }
+            disabled={mediaUploading}
+            onChange={async (e) => {
+              const file = e.target.files?.[0];
+              if (!file || !mediaHeaderType) return;
+
+              if (file.size > MEDIA_MAX_BYTES_BY_KIND[mediaHeaderType]) {
+                alert(
+                  `${mediaHeaderType} is too large. Maximum size is ${MEDIA_MAX_BYTES_BY_KIND[mediaHeaderType] / 1024 / 1024
+                  } MB.`,
+                );
+
+                e.target.value = "";
+                return;
+              }
+
+              setMediaUploading(true);
+
+              try {
+                if (uploadedMedia?.path) {
+                  await deleteAccountMedia(
+                    "chat-media",
+                    uploadedMedia.path,
+                  );
+                }
+
+                const { publicUrl, path } =
+                  await uploadAccountMedia(
+                    "chat-media",
+                    file,
+                  );
+
+                setUploadedMedia({
+                  url: publicUrl,
+                  path,
+                  filename: file.name,
+                });
+
+                onHeaderMediaUrlChange(publicUrl);
+              } catch (error) {
+                console.error("Failed to upload broadcast media:", error);
+                alert("Failed to upload media.");
+              } finally {
+                setMediaUploading(false);
+              }
+            }}
           />
+          {mediaUploading && (
+            <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Uploading...
+            </div>
+          )}
+
+          {uploadedMedia && !mediaUploading && (
+            <div className="mt-2 flex items-center gap-2 text-sm text-foreground">
+              <FileText className="h-4 w-4" />
+              <span>{uploadedMedia.filename}</span>
+            </div>
+          )}
           <p className="mt-1.5 text-xs text-muted-foreground">
             {t('personalize.headerImageDesc')}
           </p>
