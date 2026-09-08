@@ -183,6 +183,68 @@ function MessageContent({
       //  - OUTBOUND with NO payload (legacy bot/Flow sends from before
       //    migration 035 backfilled the column): show the body text plainly —
       //    it is our own message, NOT a customer tap.
+      if (message.interactive_payload?.kind === "order") {
+        const order = message.interactive_payload;
+
+        const total = order.product_items.reduce(
+          (sum, item) =>
+            sum + Number(item.item_price || 0) * Number(item.quantity || 0),
+          0,
+        );
+
+        const currencyCode = order.product_items[0]?.currency || "";
+        const currencySymbol = currencyCode === "INR" ? "₹" : currencyCode;
+
+        return (
+          <div className="w-full min-w-[230px] max-w-[280px] overflow-hidden rounded-lg bg-card text-foreground shadow-sm ring-1 ring-border">
+            <div className="px-3 py-2">
+              <p className="text-sm font-semibold">Cart received</p>
+
+              <p className="mt-1 text-xs text-muted-foreground">
+                {order.product_items.length}{" "}
+                {order.product_items.length === 1 ? "item" : "items"}
+                {total > 0 ? ` · ${currencySymbol}${total}` : ""}
+              </p>
+            </div>
+
+            <details className="border-t border-border">
+              <summary className="cursor-pointer list-none px-3 py-2 text-center text-sm font-medium text-primary">
+                View Cart
+              </summary>
+
+              <div className="border-t border-border px-3 py-1">
+                {order.product_items.map((item, index) => {
+                  const quantity = Number(item.quantity || 0);
+                  const price = Number(item.item_price || 0);
+                  const itemTotal = quantity * price;
+
+                  return (
+                    <div
+                      key={`${item.product_retailer_id}-${index}`}
+                      className="border-b border-border py-2 last:border-b-0"
+                    >
+                      <p className="text-sm font-medium">
+                        Product #{item.product_retailer_id}
+                      </p>
+
+                      <p className="mt-0.5 text-xs text-muted-foreground">
+                        Qty: {item.quantity} · {currencySymbol}
+                        {item.item_price}
+                      </p>
+
+                      <p className="mt-0.5 text-xs font-medium">
+                        Total: {currencySymbol}
+                        {itemTotal}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+            </details>
+          </div>
+        );
+      }
+      
       if (message.interactive_payload) {
         return <InteractivePreview payload={message.interactive_payload} />;
       }

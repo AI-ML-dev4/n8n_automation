@@ -219,6 +219,19 @@ export type ContentType =
   | 'interactive';
 export type MessageStatus = 'sending' | 'sent' | 'delivered' | 'read' | 'failed';
 
+export interface OrderProductItem {
+  product_retailer_id: string;
+  quantity: string | number;
+  item_price: string;
+  currency: string;
+}
+
+export interface OrderInteractivePayload {
+  kind: "order";
+  catalog_id?: string | null;
+  product_items: OrderProductItem[];
+}
+
 export interface Message {
   id: string;
   conversation_id: string;
@@ -251,7 +264,7 @@ export interface Message {
    * rows, not just the body text. Only set when `content_type ===
    * 'interactive'` and `sender_type` is agent/bot. Migration 035.
    */
-  interactive_payload?: InteractiveMessagePayload;
+interactive_payload?: InteractiveMessagePayload | OrderInteractivePayload;
   /**
    * True when the AI auto-reply bot generated + sent this message (as
    * opposed to a human agent or a deterministic Flow/automation send,

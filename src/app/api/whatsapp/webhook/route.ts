@@ -694,7 +694,7 @@ async function processMessage(
     ? message.type
     : message.type === 'sticker'
       ? 'image'         // stickers are images
-      : message.type === 'button'
+      : message.type === 'button' || message.type === 'order'
         ? 'interactive' // template quick-reply tap (issue #478)
         : 'text'        // reaction, unknown → text fallback
 
@@ -739,6 +739,14 @@ async function processMessage(
         // the column; null for every other content_type so existing inserts
         // behave identically.
         interactive_reply_id: interactiveReplyId,
+        interactive_payload:
+          message.type === 'order' && order
+            ? {
+              kind: 'order',
+              catalog_id: order.catalog_id ?? null,
+              product_items: order.product_items ?? [],
+            }
+            : null,
       },
       { onConflict: 'conversation_id,message_id', ignoreDuplicates: true }
     )
