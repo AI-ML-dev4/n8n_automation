@@ -547,6 +547,7 @@ export default function ContactsPage() {
               <TableHead className="text-muted-foreground hidden lg:table-cell">{t('tableColumns.company')}</TableHead>
               <TableHead className="text-muted-foreground hidden md:table-cell">{t('tableColumns.tags')}</TableHead>
               <TableHead className="text-muted-foreground hidden lg:table-cell">{t('tableColumns.createdAt')}</TableHead>
+              <TableHead className="w-24 text-center text-muted-foreground">Bot Status</TableHead>
               <TableHead className="text-muted-foreground w-12" />
             </TableRow>
           </TableHeader>
@@ -643,6 +644,9 @@ export default function ContactsPage() {
                       day: 'numeric',
                       year: 'numeric',
                     })}
+                  </TableCell>
+                   <TableCell className="text-muted-foreground text-xs hidden lg:table-cell">
+                   {contact.bot_status ? "ON" : "OFF"}
                   </TableCell>
                   <TableCell>
                     <DropdownMenu>

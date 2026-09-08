@@ -164,6 +164,29 @@ export function MessageThread({
   contactPanelOpen,
   onToggleContactPanel,
 }: MessageThreadProps) {
+
+  // const [enabled, setEnabled] = useState(false)
+  // const handleBotStatusChange = async () => {
+  //   const newStatus = !contact.bot_status;
+
+  //   setUpdating(true);
+
+  //   const { error } = await supabase
+  //     .from('contacts')
+  //     .update({ bot_status: newStatus })
+  //     .eq('id', contact.id);
+
+  //   if (!error) {
+  //     setContact((prev) => ({
+  //       ...prev,
+  //       bot_status: newStatus,
+  //     }));
+  //   }
+
+  //   setUpdating(false);
+  // };
+
+
   const t = useTranslations("Inbox.messageThread");
   const tTimer = useTranslations("Inbox.sessionTimer");
   const tQuote = useTranslations("Inbox.replyQuote");
@@ -175,6 +198,41 @@ export function MessageThread({
   const [templateModalOpen, setTemplateModalOpen] = useState(false);
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [reactions, setReactions] = useState<MessageReaction[]>([]);
+
+  const [updatingBotStatus, setUpdatingBotStatus] = useState(false);
+  const [botStatus, setBotStatus] = useState(contact?.bot_status ?? false);
+
+  useEffect(() => {
+    setBotStatus(contact?.bot_status ?? false);
+  }, [contact?.id, contact?.bot_status]);
+
+  const handleBotStatusChange = async () => {
+    if (!contact || updatingBotStatus) return;
+
+    const newStatus = !botStatus;
+    const supabase = createClient();
+
+    // Optimistic UI
+    setBotStatus(newStatus);
+    setUpdatingBotStatus(true);
+
+    const { error } = await supabase
+      .from("contacts")
+      .update({ bot_status: newStatus })
+      .eq("id", contact.id);
+
+    if (error) {
+      console.error("Failed to update bot status:", error);
+
+      // Rollback if DB update fails
+      setBotStatus(!newStatus);
+
+      toast.error("Failed to update bot status");
+    }
+
+    setUpdatingBotStatus(false);
+  };
+
   // Purely visual spin state for the manual-refresh button. The actual
   // refetch is fire-and-forget through `onRefresh` (which bumps the
   // parent's resyncToken); the 700ms spin is just feedback so the click
@@ -898,6 +956,9 @@ export function MessageThread({
     ? (currentAssignee?.full_name ?? t("assigned"))
     : t("assign");
 
+
+
+
   return (
     // `min-w-0` is load-bearing: the page already puts min-w-0 on the
     // thread's flex *wrapper* (issue #165), but this root keeps the
@@ -946,6 +1007,34 @@ export function MessageThread({
         </div>
 
         <div className="flex items-center gap-2">
+          <span>AI Bot</span>
+          <button
+            type="button"
+            onClick={handleBotStatusChange}
+            disabled={updatingBotStatus}
+            aria-label={botStatus ? "Disable bot" : "Enable bot"}
+            aria-pressed={botStatus}
+            title={botStatus ? "Disable bot" : "Enable bot"}
+            className={cn(
+              "relative inline-flex h-4 w-8 shrink-0 cursor-pointer items-center rounded-full",
+              "transition-all duration-200 ease-in-out",
+              "focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d4af37]/50 focus-visible:ring-offset-2",
+              "disabled:cursor-not-allowed disabled:opacity-60",
+              botStatus
+                ? "bg-gradient-to-r from-[#b8860b] to-[#d4af37] shadow-sm shadow-[#d4af37]/30"
+                : "bg-gray-300 hover:bg-gray-400",
+            )}
+          >
+            <span
+              className={cn(
+                "pointer-events-none absolute left-0.5 h-3 w-3 rounded-full bg-white",
+                "shadow-sm ring-1 ring-black/5",
+                "transition-transform duration-200 ease-in-out",
+                botStatus ? "translate-x-4" : "translate-x-0",
+              )}
+            />
+          </button>
+
           {/* Contact-panel toggle — desktop only. The contact sidebar
               eats a chunk of horizontal width that crowds the thread on
               smaller laptops; this lets agents reclaim it when they just

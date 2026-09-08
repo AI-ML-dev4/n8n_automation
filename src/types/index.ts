@@ -113,6 +113,7 @@ export interface Contact {
   /** Hydrated by queries that embed `contact_tags(tags(*))` (e.g. the
    *  Inbox conversation list, for tag filtering). Absent otherwise. */
   tags?: Tag[];
+   bot_status?: boolean;
 }
 
 export interface Tag {
