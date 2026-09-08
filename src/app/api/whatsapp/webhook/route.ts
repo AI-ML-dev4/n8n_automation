@@ -69,6 +69,15 @@ interface WhatsAppMessage {
    */
   button?: { text?: string; payload?: string }
   /** Present when the customer swipe-replies to one of our messages. */
+  order?: {
+    catalog_id?: string
+    product_items?: Array<{
+      product_retailer_id: string
+      quantity: string | number
+      item_price: string
+      currency: string
+    }>
+  }
   context?: { id: string }
 }
 
@@ -643,7 +652,7 @@ async function processMessage(
   }
 
   // Parse message content based on type
-  const { contentText, mediaUrl, mediaType, interactiveReplyId } =
+  const { contentText, mediaUrl, mediaType, interactiveReplyId, order } =
     await parseMessageContent(
       message,
       accessToken,
@@ -919,6 +928,8 @@ async function processMessage(
       message.type === 'interactive'
         ? message.interactive?.type ?? null
         : null,
+
+    order,
   })
 }
 
@@ -940,6 +951,15 @@ async function parseMessageContent(
    * tap with the right affordance. Null for everything else.
    */
   interactiveReplyId: string | null
+  order: {
+    catalog_id: string | null
+    product_items: Array<{
+      product_retailer_id: string
+      quantity: string | number
+      item_price: string
+      currency: string
+    }>
+  } | null
 }> {
   // getMediaUrl signature is (mediaId, accessToken) — earlier code had
   // the args swapped, so every verification hit an invalid Meta URL and
@@ -997,6 +1017,7 @@ async function parseMessageContent(
     mediaUrl: null,
     mediaType: null,
     interactiveReplyId: null,
+    order: null,
   }
 
   switch (message.type) {
@@ -1117,6 +1138,31 @@ async function parseMessageContent(
         ...empty,
         contentText: label || payload,
         interactiveReplyId: payload || label,
+      }
+    }
+
+    case 'order': {
+      const order = message.order
+
+      if (!order) {
+        return {
+          ...empty,
+          contentText: 'Cart received',
+        }
+      }
+
+      return {
+        ...empty,
+        contentText: 'Cart received',
+        order: {
+          catalog_id: order.catalog_id || null,
+          product_items: (order.product_items || []).map((item) => ({
+            product_retailer_id: item.product_retailer_id,
+            quantity: item.quantity,
+            item_price: item.item_price,
+            currency: item.currency,
+          })),
+        },
       }
     }
 
