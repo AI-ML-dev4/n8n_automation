@@ -306,7 +306,7 @@ export async function sendMediaMessage(
   // either yields a 400. image/video/document accept a caption; only
   // document accepts a filename.
   const media: Record<string, unknown> = mediaId
-    ? { id: Number(mediaId) }
+    ? { id: mediaId }
     : { link: link! }
   // const media: Record<string, unknown> = { link }
   if (caption && kind !== 'audio') media.caption = caption
