@@ -55,9 +55,24 @@ interface WhatsAppMessage {
    * to advance the per-contact run.
    */
   interactive?: {
-    type: 'button_reply' | 'list_reply'
-    button_reply?: { id: string; title: string }
-    list_reply?: { id: string; title: string; description?: string }
+    type: 'button_reply' | 'list_reply' | 'nfm_reply'
+
+    button_reply?: {
+      id: string
+      title: string
+    }
+
+    list_reply?: {
+      id: string
+      title: string
+      description?: string
+    }
+
+    nfm_reply?: {
+      name?: string
+      body?: string
+      response_json?: string
+    }
   }
   /**
    * Set when the customer taps a QUICK_REPLY button on a *template*
@@ -652,7 +667,7 @@ async function processMessage(
   }
 
   // Parse message content based on type
-  const { contentText, mediaUrl, mediaType, interactiveReplyId, order } =
+  const { contentText, mediaUrl, mediaType, interactiveReplyId, order, flowResponse } =
     await parseMessageContent(
       message,
       accessToken,
@@ -938,6 +953,7 @@ async function processMessage(
         : null,
 
     order,
+    flow_response: flowResponse,
   })
 }
 
@@ -968,6 +984,7 @@ async function parseMessageContent(
       currency: string
     }>
   } | null
+  flowResponse: Record<string, unknown> | null
 }> {
   // getMediaUrl signature is (mediaId, accessToken) — earlier code had
   // the args swapped, so every verification hit an invalid Meta URL and
@@ -1026,6 +1043,7 @@ async function parseMessageContent(
     mediaType: null,
     interactiveReplyId: null,
     order: null,
+    flowResponse: null,
   }
 
   switch (message.type) {
@@ -1115,16 +1133,69 @@ async function parseMessageContent(
       // Use the human-readable title as contentText so the inbox bubble
       // renders the tap legibly ("Existing customer"), and stash the
       // stable id separately so the Flows engine can route on it.
-      const reply =
-        message.interactive?.button_reply ?? message.interactive?.list_reply
-      if (reply?.id) {
+      const interactive = message.interactive
+
+      if (!interactive) {
         return {
           ...empty,
-          contentText: reply.title || reply.id,
-          interactiveReplyId: reply.id,
+          contentText: '[Interactive reply]',
         }
       }
-      return { ...empty, contentText: '[Interactive reply]' }
+
+      // Normal reply button
+      if (interactive.type === 'button_reply') {
+        const reply = interactive.button_reply
+
+        if (reply?.id) {
+          return {
+            ...empty,
+            contentText: reply.title || reply.id,
+            interactiveReplyId: reply.id,
+          }
+        }
+      }
+
+      // List reply
+      if (interactive.type === 'list_reply') {
+        const reply = interactive.list_reply
+
+        if (reply?.id) {
+          return {
+            ...empty,
+            contentText: reply.title || reply.id,
+            interactiveReplyId: reply.id,
+          }
+        }
+      }
+
+      // WhatsApp Flow submitted
+      if (interactive.type === 'nfm_reply') {
+        let flowResponse: Record<string, unknown> | null = null
+
+        try {
+          if (interactive.nfm_reply?.response_json) {
+            flowResponse = JSON.parse(
+              interactive.nfm_reply.response_json
+            )
+          }
+        } catch (error) {
+          console.error(
+            '[webhook] Failed to parse WhatsApp Flow response:',
+            error
+          )
+        }
+
+        return {
+          ...empty,
+          contentText: 'Form submitted',
+          flowResponse,
+        }
+      }
+
+      return {
+        ...empty,
+        contentText: '[Interactive reply]',
+      }
     }
 
     case 'button': {
