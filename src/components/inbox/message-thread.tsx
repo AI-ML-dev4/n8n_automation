@@ -200,10 +200,10 @@ export function MessageThread({
   const [reactions, setReactions] = useState<MessageReaction[]>([]);
 
   const [updatingBotStatus, setUpdatingBotStatus] = useState(false);
-  const [botStatus, setBotStatus] = useState(contact?.bot_status ?? false);
+  const [botStatus, setBotStatus] = useState(contact?.bot_status ?? true);
 
   useEffect(() => {
-    setBotStatus(contact?.bot_status ?? false);
+    setBotStatus(contact?.bot_status ?? true);
   }, [contact?.id, contact?.bot_status]);
 
   const handleBotStatusChange = async () => {
@@ -224,7 +224,7 @@ export function MessageThread({
     if (error) {
       console.error("Failed to update bot status:", error);
 
-      // Rollback if DB update fails
+      // Rollback
       setBotStatus(!newStatus);
 
       toast.error("Failed to update bot status");

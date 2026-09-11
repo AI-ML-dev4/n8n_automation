@@ -943,6 +943,9 @@ async function processMessage(
     content_type: contentType,
     text: contentText,
 
+    // Current AI Bot status for this contact
+    bot_status: contactRecord.bot_status ?? true,
+
     // Needed to preserve your old n8n interactive routing
     interactive_reply_id: interactiveReplyId,
 
